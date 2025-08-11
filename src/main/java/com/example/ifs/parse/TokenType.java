@@ -1,0 +1,16 @@
+package com.example.ifs.parse;
+
+public enum TokenType {
+    EOF,
+    IDENT,
+    STRING,
+    NUMBER,
+
+    MODEL, NAMESPACE, ENUM, ENTITY, RELATION,
+    HASMANY, HASONE, BELONGSTO, MANYTOMANY,
+    MAPPEDBY, AS,
+    TRUE, FALSE, NULL,
+
+    LBRACE, RBRACE, LPAREN, RPAREN,
+    COLON, COMMA, DOT, EQUALS, QUESTION, AT
+}
