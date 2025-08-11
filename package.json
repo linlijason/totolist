@@ -1,0 +1,22 @@
+{
+  "name": "filters-complex-demo",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview --port 5173"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.26"
+  },
+  "dependencies": {
+    "vue": "^3.4.31",
+    "vxe-table": "^4.7.64",
+    "xe-utils": "^3.5.30"
+  }
+}
