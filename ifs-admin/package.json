@@ -1,0 +1,31 @@
+{
+  "name": "ifs-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "ant-design-vue": "^4",
+    "vue": "^3.5.18",
+    "vue-i18n": "^9",
+    "vue-router": "^4",
+    "vxe-table": "^4",
+    "xe-utils": "^3"
+  },
+  "devDependencies": {
+    "@unocss/preset-attributify": "^66.4.2",
+    "@unocss/preset-icons": "^66.4.2",
+    "@unocss/preset-uno": "^66.4.2",
+    "@unocss/transformer-directives": "^66.4.2",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.8.3",
+    "unocss": "^66.4.2",
+    "vite": "^7.1.0",
+    "vue-tsc": "^3.0.5"
+  }
+}
