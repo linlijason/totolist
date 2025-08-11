@@ -1,32 +1,22 @@
 {
   "name": "filters-complex-demo",
   "version": "0.1.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/linlijason/totolist.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/linlijason/totolist/issues"
-  },
-  "homepage": "https://github.com/linlijason/totolist#readme",
-  "description": "",
   "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview --port 5173"
+  },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.1",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.1",
-    "vue-tsc": "^3.0.5"
+    "@types/node": "^24.2.1",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.26"
   },
   "dependencies": {
-    "vue": "^3.5.18",
-    "vxe-table": "^4.15.5",
-    "xe-utils": "^3.7.8"
+    "vue": "^3.4.31",
+    "vxe-table": "^4.7.64",
+    "xe-utils": "^3.5.30"
   }
 }
