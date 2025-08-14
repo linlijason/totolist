@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#0ea5e9">
+    <title>汽车充电 H5 演示</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <h1 class="title">正在充电…</h1>
+        <div class="subtitle">请保持连接，充电过程中请勿断开</div>
+      </header>
+
+      <section class="scene" aria-label="充电动画区域">
+        <div class="charger" aria-hidden="true">
+          <div class="charger-head"></div>
+          <div class="charger-screen">
+            <span class="bolt" aria-hidden="true">⚡</span>
+          </div>
+          <div class="charger-base"></div>
+        </div>
+
+        <div class="cable" aria-hidden="true"></div>
+
+        <div class="car" role="img" aria-label="正在充电的汽车">
+          <div class="car-top"></div>
+          <div class="car-body">
+            <div class="battery">
+              <div class="battery-fill" id="batteryFill"></div>
+              <div class="battery-cap"></div>
+            </div>
+          </div>
+          <div class="wheel wheel-front"></div>
+          <div class="wheel wheel-rear"></div>
+        </div>
+      </section>
+
+      <section class="progress-wrap" aria-label="充电进度">
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBarAria">
+          <div class="progress" id="progressBar"></div>
+        </div>
+        <div class="progress-text"><span id="progressText">0%</span></div>
+      </section>
+
+      <section class="stats" aria-label="充电参数">
+        <div class="stat">
+          <div class="label">时间</div>
+          <div class="value" id="timeValue">00:00:00</div>
+        </div>
+        <div class="stat">
+          <div class="label">功率</div>
+          <div class="value"><span id="powerValue">0.0</span> kW</div>
+        </div>
+        <div class="stat">
+          <div class="label">电流</div>
+          <div class="value"><span id="currentValue">0</span> A</div>
+        </div>
+        <div class="stat">
+          <div class="label">进度</div>
+          <div class="value"><span id="progressValue">0</span>%</div>
+        </div>
+      </section>
+
+      <footer class="footer">充电动画演示 • 仅用于展示效果</footer>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
