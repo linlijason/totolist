@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UHF Reader (Python)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+    table { border-collapse: collapse; width: 900px; }
+    td { border: 1px solid #ccc; padding: 8px; }
+    input[type=text] { padding: 8px; font-size: 16px; }
+    button, input[type=button] { padding: 8px 12px; font-size: 14px; cursor: pointer; }
+    #opMsg { color: #d22; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h2>开成都黑条（Python 框架）</h2>
+  <div style="margin-bottom: 12px;">
+    <label>串口：</label>
+    <select id="sel">
+      <option value="1">COM1</option>
+      <option value="2">COM2</option>
+      <option value="3" selected>COM3</option>
+      <option value="4">COM4</option>
+      <option value="5">COM5</option>
+      <option value="6">COM6</option>
+      <option value="7">COM7</option>
+      <option value="8">COM8</option>
+      <option value="9">COM9</option>
+      <option value="10">COM10</option>
+      <option value="11">COM11</option>
+      <option value="12">COM12</option>
+      <option value="13">COM13</option>
+      <option value="14">COM14</option>
+      <option value="15">COM15</option>
+      <option value="16">COM16</option>
+      <option value="17">COM17</option>
+      <option value="18">COM18</option>
+      <option value="19">COM19</option>
+      <option value="20">COM20</option>
+    </select>
+
+    <label style="margin-left: 12px;">波特率：</label>
+    <select id="sel2">
+      <option value="0">9600bps</option>
+      <option value="1">19200bps</option>
+      <option value="2">38400bps</option>
+      <option value="5" selected>57600bps</option>
+      <option value="6">115200bps</option>
+    </select>
+
+    <input type="button" value="连接" id="button1" />
+    <input type="button" value="关闭" id="button2" />
+  </div>
+
+  <div style="margin-bottom: 12px;">
+    <input type="button" value="查找标签" id="button5" />
+  </div>
+
+  <table>
+    <tr><td colspan="4" style="text-align:center">黑条二维码区域</td></tr>
+    <tr>
+      <td>二维码编号(后面几位数字):CD</td>
+      <td colspan="2"><input type="text" id="iccardtext" style="height:55px; font-size:48px; width: 100%" /></td>
+      <td><input type="button" value="1. 输入黑条编码后几位" id="iccardbtn" /></td>
+    </tr>
+
+    <tr>
+      <td>电子标签号码:</td>
+      <td colspan="3"><p id="cardBagInfo" style="height:55px; font-size:24px;"></p></td>
+    </tr>
+
+    <tr><td colspan="4">EPC区域</td></tr>
+    <tr>
+      <td>待写入标签epc号码(16进制)</td>
+      <td><input type="text" id="nowEpcHexNumber" style="height:40px; font-size:28px" /></td>
+      <td>待写入标签epc号码(10进制)</td>
+      <td>
+        <input type="text" id="nowEpcDecNumber" style="height:40px; font-size:28px; color:red" />
+        <p id="opMsg" style="height:40px; font-size:18px; color:red">写入状态</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td>标签ID(16进制)</td>
+      <td colspan="3"><input type="text" id="SnEPC" style="width: 100%" readonly /></td>
+    </tr>
+
+    <tr>
+      <td>起始地址</td>
+      <td><input type="text" id="SnWpt" value="2" readonly /></td>
+      <td>字数</td>
+      <td><input type="text" id="SnNum" value="2" readonly /></td>
+    </tr>
+
+    <tr>
+      <td>读写数据</td>
+      <td colspan="3"><input type="text" id="SnData" style="width:100%" readonly /></td>
+    </tr>
+
+    <tr>
+      <td>信息</td>
+      <td colspan="3"><input type="text" id="Snr" style="width:100%" readonly /></td>
+    </tr>
+  </table>
+
+  <script>
+    function hexToDec(hex) {
+      return parseInt(hex.replace('#', ''), 16);
+    }
+
+    function paddingZero(numStr, length) {
+      while (numStr.length < length) numStr = '0' + numStr;
+      return numStr;
+    }
+
+    function getEpcHexWriteData(epcDecNumber) {
+      const epcDecNumberString = String(epcDecNumber);
+      if (epcDecNumber < 65536) {
+        return paddingZero(epcDecNumber.toString(16), 6) + '00';
+      }
+      let part2Number = epcDecNumberString.slice(-5);
+      let part1Number = epcDecNumberString.slice(0, -5);
+      part1Number = part1Number.replace(/^0+/, '');
+      part2Number = part2Number.replace(/^0+/, '');
+      const part1Hex = parseInt(part1Number || '0', 10).toString(16);
+      let part2Hex = parseInt(part2Number || '0', 10).toString(16);
+      part2Hex = paddingZero(part2Hex, 4);
+      let hexData = part1Hex + part2Hex + '00';
+      hexData = paddingZero(hexData, 8);
+      return hexData.toUpperCase();
+    }
+
+    async function callApi(method, ...args) {
+      try {
+        return await window.pywebview.api[method](...args);
+      } catch (e) {
+        console.error('API error', e);
+        return null;
+      }
+    }
+
+    async function doopen() {
+      const Port = parseInt(document.getElementById('sel').value, 10);
+      const Baud = parseInt(document.getElementById('sel2').value, 10);
+      const res = await callApi('open', Port, Baud);
+      document.getElementById('Snr').value = res && res.message ? res.message : '设备连接失败';
+    }
+
+    async function doclose() {
+      const res = await callApi('close');
+      document.getElementById('Snr').value = res && res.message ? res.message : '设备关闭失败';
+    }
+
+    async function doquery() {
+      const sum = await callApi('inventory');
+      const snr = document.getElementById('Snr');
+      const epcInput = document.getElementById('SnEPC');
+      if (!sum) {
+        snr.value = '未询查到电子标签';
+        epcInput.value = '';
+      } else {
+        snr.value = '询查到电子标签';
+        epcInput.value = sum;
+      }
+    }
+
+    async function doRead() {
+      const Temp = document.getElementById('SnEPC').value;
+      if (!Temp) return;
+      const WordPtr = 2;
+      const WordNum = 2;
+      const EPC_Len = parseInt(Temp.substr(0, 2), 16);
+      const EPC = Temp.substr(2, EPC_Len * 2);
+      const Mem = 1;
+      const sum = await callApi('read', EPC, WordPtr, WordNum, Mem);
+      const snr = document.getElementById('Snr');
+      const snd = document.getElementById('SnData');
+      if (!sum) {
+        snr.value = '读数据失败';
+        snd.value = '';
+      } else {
+        snr.value = '读数据成功';
+        snd.value = sum;
+        const subSum = sum.substr(0, 6);
+        document.getElementById('nowEpcDecNumber').value = parseInt(subSum, 16);
+      }
+    }
+
+    function doSearch() {
+      doquery().then(doRead);
+    }
+
+    function findCardBagByIcCardNo(cityId, number, code) {
+      const url = 'http://mp.dianlvyizhan.com/api/card/getConsumableCard';
+      fetch(`${url}?cityId=${cityId}&number=${encodeURIComponent(number)}&code=${encodeURIComponent(code)}`)
+        .then(r => r.json())
+        .then(json => {
+          const icCard = json.data.number;
+          const epcNumber = json.data.epcNumber;
+          let epcFullNumber = epcNumber.replace('BUH', '').replace(/^0+/, '');
+          const realNumber = parseInt(epcFullNumber, 10);
+          document.getElementById('cardBagInfo').textContent = `ic卡号: ${icCard}   电子标签号码: ${realNumber}`;
+          const epcPaddingHexData = getEpcHexWriteData(realNumber);
+          document.getElementById('nowEpcHexNumber').value = epcPaddingHexData;
+          document.getElementById('nowEpcDecNumber').value = realNumber;
+          setTimeout(startWriteEpc, 1000);
+        })
+        .catch(() => console.log('failed!'));
+    }
+
+    let writeThreadFlag = null;
+    async function startWriteEpc() {
+      if (writeThreadFlag) clearInterval(writeThreadFlag);
+      writeThreadFlag = setInterval(async () => {
+        await doquery();
+        await doRead();
+        const epcId = (document.getElementById('SnEPC').value || '').substr(2, 16);
+        const Mem = 1;
+        const nowEpcDecNumber = document.getElementById('nowEpcDecNumber').value;
+        if (!nowEpcDecNumber || parseInt(nowEpcDecNumber, 10) < 10000) {
+          alert('出错,请重新打开本页面!!!!');
+          clearInterval(writeThreadFlag);
+          return;
+        }
+        const nowEpcHexNumber = document.getElementById('nowEpcHexNumber').value;
+        const sum = await callApi('write', epcId, 2, Mem, nowEpcHexNumber);
+        if (sum !== '00') {
+          document.getElementById('opMsg').textContent = '写入失败,请继续尝试写入';
+        } else {
+          document.getElementById('opMsg').textContent = '写入成功,请刷下一张IC卡';
+          const input = document.getElementById('iccardtext');
+          input.removeAttribute('disabled');
+          input.value = '';
+          input.focus();
+          clearInterval(writeThreadFlag);
+        }
+      }, 500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      alert('你正在开 CD 前缀的黑条!!!!!');
+      document.getElementById('iccardbtn').addEventListener('click', () => {
+        const input = document.getElementById('iccardtext');
+        input.value = '';
+        input.focus();
+      });
+
+      document.getElementById('iccardtext').addEventListener('keyup', (event) => {
+        if (event.keyCode === 13) {
+          let trimNumber = document.getElementById('iccardtext').value;
+          const idx = trimNumber.indexOf('no=');
+          if (idx >= 0) trimNumber = trimNumber.substr(idx + 3);
+          setTimeout(() => {
+            findCardBagByIcCardNo(1, trimNumber, 'BIKE_UHF');
+            document.getElementById('iccardtext').setAttribute('disabled', 'disabled');
+          }, 600);
+        }
+      });
+
+      document.getElementById('button1').addEventListener('click', doopen);
+      document.getElementById('button2').addEventListener('click', doclose);
+      document.getElementById('button5').addEventListener('click', () => { doquery(); doRead(); });
+    });
+  </script>
+</body>
+</html>
