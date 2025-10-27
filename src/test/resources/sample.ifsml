@@ -1,0 +1,23 @@
+model "ShopModel"
+namespace com.example.shop
+
+enum Status { NEW, ACTIVE, SUSPENDED }
+
+enum Role { USER, ADMIN }
+
+entity User {
+  id: UUID @pk
+  name: String
+  age: Int?
+  status: Status = NEW
+  createdAt: Instant @default(now())
+}
+
+entity Order {
+  id: UUID @pk
+  total: Decimal(10, 2)
+  user: User
+}
+
+relation User hasMany Order mappedBy user
+relation Order belongsTo User as user
