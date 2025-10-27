@@ -1,0 +1,1 @@
+{"root":["./src/env.d.ts","./src/main.ts","./src/vite-env.d.ts","./src/plugins/i18n.ts","./src/router/index.ts","./src/App.vue","./src/components/HelloWorld.vue","./src/components/VxeTablePro.vue","./src/layouts/BasicLayout.vue","./src/pages/BusinessPage.vue"],"errors":true,"version":"5.8.3"}
